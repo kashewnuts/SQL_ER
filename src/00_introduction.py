@@ -366,6 +366,11 @@ def moving_average_window():
     """
     ウィンドウ関数による移動平均
     Django 2.0以降でサポート
+
+    SQLite3制約 (3.43.2+前提):
+    - RowRange(start=-2, end=0) のような複雑なフレーム指定は
+      SQLite3 3.43.2以降でサポートされているが、パフォーマンスは
+      PostgreSQL/MySQLより劣る場合があります
     """
     return SalesIcecream.objects.annotate(
         moving_avg=Round(

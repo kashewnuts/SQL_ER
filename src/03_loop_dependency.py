@@ -196,6 +196,11 @@ def patient3_loop_stock_update():
 def window_function_stock_trend():
     """
     ウィンドウ関数による株価トレンド計算（推奨）
+
+    SQLite3制約 (3.43.2+前提):
+    - Lag() ウィンドウ関数はSQLite3 3.43.2以降で完全サポート
+    - 複雑なCase/When式とウィンドウ関数の組み合わせではパフォーマンスが
+      PostgreSQL/MySQLより劣る場合があります
     """
     return (
         StockHistory.objects.annotate(

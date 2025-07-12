@@ -72,7 +72,7 @@ docker compose exec -e MYSQL_PWD=root db mysql -u root sample
 
 - **言語**: Python 3.13
 - **フレームワーク**: Django 4.2 ORM
-- **データベース**: MySQL 8.4
+- **データベース**: MySQL 8.4 (推奨) / SQLite3 3.43.2+ (開発用)
 - **パッケージ管理**: uv
 - **リンター**: ruff
 - **テスト**: pytest
@@ -84,6 +84,16 @@ docker compose exec -e MYSQL_PWD=root db mysql -u root sample
 
 ❌ **対応困難な機能**:
 - PostgreSQL配列型、DBMS固有関数、複雑なウィンドウ関数フレーム
+
+### データベース互換性
+
+| 機能 | PostgreSQL | MySQL | SQLite3 (3.43.2+) |
+|------|------------|-------|--------------------|
+| ウィンドウ関数 | ✅ 完全 | ✅ 完全 | ✅ 完全 (パフォーマンス注意) |
+| JSON操作 | ✅ 完全 | ✅ 完全 | ✅ 基本サポート |
+| ArrayField | ✅ 完全 | ❌ 非サポート | ❌ 非サポート |
+
+> **注意**: 各実装ファイルにはSQLite3 3.43.2以降での制約情報をdocstringに記載しています。
 
 ## 📝 ライセンス
 

@@ -13,6 +13,11 @@ class EmpChildArray(models.Model):
     """
     PostgreSQL配列型の使用例（アンチパターン）
     Django ORMでは限定的にサポート
+
+    SQLite3制約 (3.43.2+前提):
+    - ArrayField はSQLite3では依然としてサポートされていません
+    - JSON形式での配列模擬が代替手段となります
+    - 配列操作（__contains, array_length等）は使用できません
     """
 
     emp_id = models.CharField(max_length=4, primary_key=True)
@@ -70,6 +75,11 @@ class ArrayTbl(models.Model):
 class Member(models.Model):
     """
     JSONフィールドの使用例
+
+    SQLite3制約 (3.43.2+前提):
+    - JSONField はSQLite3 3.43.2以降で基本的な操作をサポート
+    - 高度なJSON操作（->>、JSON_EXTRACT等）も改善されている
+    - JSON検索のパフォーマンスはPostgreSQL/MySQLより劣る場合があります
     """
 
     id = models.AutoField(primary_key=True)
@@ -160,6 +170,11 @@ def json_operations():
     """
     JSON操作の例
     DBMS固有の構文をDjango ORMで抽象化
+
+    SQLite3制約 (3.43.2+前提):
+    - extra() 内のJSON演算子 (->>)  はSQLite3 3.43.2以降でサポート
+    - JSON検索操作のパフォーマンスはPostgreSQL/MySQLより劣る場合があります
+    - JSONインデックス機能は限定的です
     """
     # PostgreSQL: ->> 演算子
     # MySQL: ->> 演算子

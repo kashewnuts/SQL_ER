@@ -181,6 +181,11 @@ def having_clause_example():
 def window_function_set_processing():
     """
     ウィンドウ関数による高度な集合処理
+
+    SQLite3制約 (3.43.2+前提):
+    - DenseRank() ウィンドウ関数はSQLite3 3.43.2以降で完全サポート
+    - 複雑なpartition_byとorder_byの組み合わせではパフォーマンスが
+      PostgreSQL/MySQLより劣る場合があります
     """
     return Addresses.objects.annotate(
         family_size=Window(expression=Count("name"), partition_by=[F("family_id")]),

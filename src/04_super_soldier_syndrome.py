@@ -87,6 +87,11 @@ def sql_server_datediff():
     """
     SQL ServerのDATEDIFF関数はDjangoでサポートされていない
     代替案：Extractを使用した年月日の計算
+
+    SQLite3制約 (3.43.2+前提):
+    - Extract() 関数はSQLite3 3.43.2以降で改善されているが、
+      タイムゾーン処理などの高度な機能はPostgreSQL/MySQLより制限があります
+    - 日付計算（F式による減算）は基本的にサポートされています
     """
     # Django ORMでは直接的なDATEDIFF関数はない
     # 日付の差は単純な減算で計算可能
@@ -135,6 +140,11 @@ def helen_window_function():
     """
     ウィンドウ関数による注文明細数取得（推奨）
     重複を避けつつ効率的に処理
+
+    SQLite3制約 (3.43.2+前提):
+    - Window() 関数とCount() の組み合わせはSQLite3 3.43.2以降でサポート
+    - distinct() との組み合わせではパフォーマンスがPostgreSQL/MySQLより
+      劣る場合があります
     """
     return (
         Orders.objects.select_related()

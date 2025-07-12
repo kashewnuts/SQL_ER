@@ -26,7 +26,9 @@ uv run ruff check --fix src/
 uv run pytest
 ```
 
-### MySQL データベース
+### データベース環境
+
+#### MySQL データベース（推奨）
 ```bash
 # データベース起動
 docker compose up -d
@@ -43,6 +45,21 @@ docker compose down
 - Database: sample
 - User: user / Password: password
 - Root Password: root
+
+#### SQLite3サポート
+SQLite3 3.43.2以降での動作を想定：
+```bash
+# SQLite3バージョン確認
+sqlite3 --version
+
+# Django settings.pyでSQLite3設定例
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+```
 
 ## アーキテクチャ
 
@@ -76,6 +93,14 @@ docker compose down
 - **代替実装**: 正規化テーブル、raw SQL、サードパーティライブラリ
 - **パフォーマンス**: select_related/prefetch_related、bulk操作の活用
 
+### SQLite3制約 (3.43.2+前提)
+
+各実装ファイルにはSQLite3 3.43.2以降での制約情報を記載：
+- **ウィンドウ関数**: FirstValue, Lag, Lead, DenseRank等は完全サポート
+- **JSON操作**: 基本的な操作はサポート、パフォーマンスに注意
+- **ArrayField**: 非サポート（JSON形式での代替推奨）
+- **パフォーマンス**: PostgreSQL/MySQLより劣る場合あり
+
 ## Django ORM対応状況
 
 ✅ **対応済み機能**:
@@ -91,6 +116,16 @@ docker compose down
 - 複雑なウィンドウ関数フレーム
 - 再帰共通表式
 
+### データベース互換性
+
+| 機能 | PostgreSQL | MySQL | SQLite3 (3.43.2+) |
+|------|------------|-------|--------------------|
+| ウィンドウ関数 | ✅ 完全 | ✅ 完全 | ✅ 完全 (パフォーマンス注意) |
+| JSON操作 | ✅ 完全 | ✅ 完全 | ✅ 基本サポート |
+| ArrayField | ✅ 完全 | ❌ 非サポート | ❌ 非サポート |
+| 日付関数 | ✅ 完全 | ✅ 完全 | ✅ 基本サポート |
+| バルク操作 | ✅ 高速 | ✅ 高速 | ⚠️ 改善済み (メモリ注意) |
+
 ## テーブル設計
 
 主要なテーブル群（各アンチパターンで使用）：
@@ -100,3 +135,25 @@ docker compose down
 - `Suppliers/Manufacturers` - 複雑な関係構造
 
 各SQLファイルには対応するCREATE TABLEとサンプルデータが含まれている。
+
+## 実装における注意事項
+
+### SQLite3 3.43.2以降での利用
+各Pythonファイルの関数docstringに詳細な制約情報を記載：
+
+```python
+def window_function_example():
+    """
+    ウィンドウ関数の例
+    
+    SQLite3制約 (3.43.2+前提):
+    - Lag() ウィンドウ関数はSQLite3 3.43.2以降で完全サポート
+    - 複雑なpartition_byとorder_byの組み合わせではパフォーマンスが
+      PostgreSQL/MySQLより劣る場合があります
+    """
+```
+
+### パフォーマンス最適化
+- **PostgreSQL/MySQL**: 本格的な運用環境での推奨
+- **SQLite3**: 開発・テスト環境やシンプルなアプリケーション向け
+- **選択基準**: データ量、同時接続数、高度なSQL機能の必要性

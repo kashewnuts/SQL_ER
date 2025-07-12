@@ -94,6 +94,11 @@ def helen_cte_alternative():
     """
     共通表式（CTE）の代替としてサブクエリを使用
     Django ORMではCTEの直接サポートなし（Django 4.2時点）
+
+    SQLite3制約 (3.43.2+前提):
+    - 複雑なサブクエリとCase/When式の組み合わせはSQLite3 3.43.2以降で
+      改善されているが、パフォーマンスはPostgreSQL/MySQLより劣る場合があります
+    - 集約関数の組み合わせは基本的にサポートされています
     """
     # CTEの代替：annotateでサブクエリ結果を追加
     suppliers_with_totals = Suppliers.objects.values("city").annotate(

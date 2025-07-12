@@ -68,6 +68,11 @@ def roberts_window_solution():
     """
     ウィンドウ関数を使った解決法
     Django 2.0以降でサポート
+
+    SQLite3制約 (3.43.2+前提):
+    - FirstValue() ウィンドウ関数はSQLite3 3.43.2以降で完全サポート
+    - 複雑なpartition_byとorder_byの組み合わせではパフォーマンスが
+      PostgreSQL/MySQLより劣る場合があります
     """
     return (
         Receipts.objects.annotate(
@@ -86,6 +91,10 @@ def roberts_window_solution():
 def window_function_demo():
     """
     ウィンドウ関数の動作確認
+
+    SQLite3制約 (3.43.2+前提):
+    - FirstValue() ウィンドウ関数はSQLite3 3.43.2以降で標準準拠の動作
+    - パフォーマンスはMySQL/PostgreSQLより劣る場合があります
     """
     return Receipts.objects.annotate(
         min_seq=Window(

@@ -186,6 +186,11 @@ def hierarchy_adjacency_list():
 def server_load_analysis():
     """
     サーバ負荷の前値比較（Lag関数）
+
+    SQLite3制約 (3.43.2+前提):
+    - Lag() ウィンドウ関数はSQLite3 3.43.2以降で完全サポート
+    - 複雑なpartition_byとorder_byの組み合わせではパフォーマンスが
+      PostgreSQL/MySQLより劣る場合があります
     """
     return ServerLoad.objects.annotate(
         prev_load=Window(
@@ -200,6 +205,11 @@ def server_load_analysis():
 def stock_price_trends():
     """
     株価トレンド分析（Lead/Lag関数）
+
+    SQLite3制約 (3.43.2+前提):
+    - Lead/Lag ウィンドウ関数はSQLite3 3.43.2以降で完全サポート
+    - 複雑なCase/When式とウィンドウ関数の組み合わせではパフォーマンスが
+      PostgreSQL/MySQLより劣る場合があります
     """
     return (
         StockPrice.objects.annotate(
@@ -232,6 +242,10 @@ def consecutive_vacant_seats():
     """
     連続する空席の検索
     Django ORMでは複雑な窓関数の制限あり
+
+    SQLite3制約 (3.43.2+前提):
+    - raw SQL内のLAG/LEAD ウィンドウ関数はSQLite3 3.43.2以降でサポート
+    - 複雑な窓関数のパフォーマンスはPostgreSQL/MySQLより劣る場合があります
     """
     from django.db import connection
 
@@ -252,6 +266,11 @@ def consecutive_vacant_seats():
 def bulk_price_update():
     """
     価格の一括更新（推奨）
+
+    SQLite3制約 (3.43.2+前提):
+    - bulk_update操作はSQLite3 3.43.2以降で改善されているが、
+      PostgreSQL/MySQLと比べてパフォーマンスが劣る場合があります
+    - 大量データのbulk操作ではメモリ使用量にご注意ください
     """
     # Django ORMのbulk_updateを使用
     orders = list(OrderDetails.objects.filter(item_id="ITEM001"))
@@ -305,6 +324,7 @@ def django_orm_limitations():
             "pivot_operations": "PIVOT/UNPIVOT - Case/When式で代替",
             "merge_statement": "MERGE - bulk_create/bulk_update で代替",
             "advanced_json": "JSON_OBJECT等 - Python辞書操作で代替",
+            "sqlite3_limitations": "ArrayField非サポート/パフォーマンス制限等(3.43.2+前提)",
         },
         "workarounds": {
             "hierarchy": "django-mptt (Modified Preorder Tree Traversal)",
